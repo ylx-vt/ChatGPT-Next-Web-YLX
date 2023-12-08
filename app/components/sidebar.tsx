@@ -131,7 +131,7 @@ function useDragSideBar() {
 export function SideBar(props: { className?: string }) {
   const chatStore = useChatStore();
 
-  // drag side bar
+  // drag sidebar
   const { onDragStart, shouldNarrow } = useDragSideBar();
   const navigate = useNavigate();
   const config = useAppConfig();
@@ -155,10 +155,10 @@ export function SideBar(props: { className?: string }) {
     >
       <div className={styles["sidebar-header"]} data-tauri-drag-region>
         <div className={styles["sidebar-title"]} data-tauri-drag-region>
-          ChatGPT Next
+          窝窝家的小P
         </div>
         <div className={styles["sidebar-sub-title"]}>
-          Build your own AI assistant.
+          快来创建你自己的AI助手啵！
         </div>
         <div className={styles["sidebar-logo"] + " no-dark"}>
           <ChatGptIcon />
