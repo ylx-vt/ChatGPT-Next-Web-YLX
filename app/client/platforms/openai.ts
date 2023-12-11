@@ -67,16 +67,20 @@ export class ChatGPTApi implements LLMApi {
   }
 
   calculateTotalCost(res: any): number {
+    console.log("calculateTotalCost called with response:", res);
     const model = res.model;
     const promptTokens = res.usage?.prompt_tokens ?? 0;
     const completionTokens = res.usage?.completion_tokens ?? 0;
+    console.log(`Model: ${model}, Prompt Tokens: ${promptTokens}, Completion Tokens: ${completionTokens}`);
 
+    let cost = -1;
     if (model === "gpt-4-1106-preview") {
-      return parseFloat((0.07 * promptTokens / 1000 + 0.21 * completionTokens / 1000).toFixed(2));
+      cost = parseFloat((0.07 * promptTokens / 1000 + 0.21 * completionTokens / 1000).toFixed(2));
     } else if (model === "gpt-3.5-turbo") {
-      return parseFloat((0.007 * promptTokens / 1000 + 0.014 * completionTokens / 1000).toFixed(2));
+      cost = parseFloat((0.007 * promptTokens / 1000 + 0.014 * completionTokens / 1000).toFixed(2));
     }
-    return -1;
+    console.log(`Calculated cost: ${cost}`);
+    return cost;
   }
 
   async chat(options: ChatOptions) {
@@ -239,9 +243,15 @@ export class ChatGPTApi implements LLMApi {
         clearTimeout(requestTimeoutId);
 
         const resJson = await res.json();
+        console.log("API Response JSON:", resJson);
         const message = this.extractMessage(resJson);
-        const totalCost = this.calculateTotalCost(resJson)
-        options.onFinish(message + "(Token Cost: " + totalCost + ")");
+        console.log("Extracted message:", message);
+        const totalCost = this.calculateTotalCost(resJson);
+        console.log("Total cost calculated:", totalCost);
+        const finalMessage = message + "(Token Cost: " + totalCost + ")";
+        console.log("Final message to be sent:", finalMessage);
+        options.onFinish(finalMessage);
+
       }
     } catch (e) {
       console.log("[Request] failed to make a chat request", e);
