@@ -66,19 +66,6 @@ export class ChatGPTApi implements LLMApi {
     return res.choices?.at(0)?.message?.content ?? "";
   }
 
-  calculateTotalCost(res: any): number {
-    const model = res.model;
-    const promptTokens = res.usage?.prompt_tokens ?? 0;
-    const completionTokens = res.usage?.completion_tokens ?? 0;
-
-    if (model === "gpt-4-1106-preview") {
-      return parseFloat((0.07 * promptTokens / 1000 + 0.21 * completionTokens / 1000).toFixed(2));
-    } else if (model === "gpt-3.5-turbo") {
-      return parseFloat((0.007 * promptTokens / 1000 + 0.014 * completionTokens / 1000).toFixed(2));
-    }
-    return -1;
-  }
-
   async chat(options: ChatOptions) {
     const messages = options.messages.map((v) => ({
       role: v.role,
@@ -150,7 +137,7 @@ export class ChatGPTApi implements LLMApi {
           requestAnimationFrame(animateResponseText);
         }
 
-        // start animation
+        // start animaion
         animateResponseText();
 
         const finish = () => {
@@ -240,8 +227,7 @@ export class ChatGPTApi implements LLMApi {
 
         const resJson = await res.json();
         const message = this.extractMessage(resJson);
-        const totalCost = this.calculateTotalCost(resJson)
-        options.onFinish(message + "(Token Cost: " + totalCost + ")");
+        options.onFinish(message);
       }
     } catch (e) {
       console.log("[Request] failed to make a chat request", e);
