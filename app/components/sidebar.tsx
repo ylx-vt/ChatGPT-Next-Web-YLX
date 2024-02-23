@@ -158,7 +158,7 @@ export function SideBar(props: { className?: string }) {
           窝窝家的小P
         </div>
         <div className={styles["sidebar-sub-title"]}>
-          祝范建梅生日快乐！
+          快来创建你自己的AI助手啵！
         </div>
         <div className={styles["sidebar-logo"] + " no-dark"}>
           <ChatGptIcon />
