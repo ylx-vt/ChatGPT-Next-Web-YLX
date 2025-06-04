@@ -445,16 +445,21 @@ export const useChatStore = createPersistStore(
         const messageIndex = session.messages.length + 1;
 
         // save user's and bot's message
+        const savedUserMessage = {
+          ...userMessage,
+          content: mContent,
+        };
+        const userTokenCount = estimateTokenLength(
+          getMessageTextContent(savedUserMessage),
+        );
         get().updateTargetSession(session, (session) => {
-          const savedUserMessage = {
-            ...userMessage,
-            content: mContent,
-          };
           session.messages = session.messages.concat([
             savedUserMessage,
             botMessage,
           ]);
         });
+        // update statistics for user message
+        get().updateStat(savedUserMessage, session);
 
         const api: ClientApi = getClientApi(modelConfig.providerName);
         // make request
@@ -476,6 +481,14 @@ export const useChatStore = createPersistStore(
               botMessage.content = message;
               botMessage.date = new Date().toLocaleString();
               get().onNewMessage(botMessage, session);
+              const assistantTokenCount = estimateTokenLength(
+                getMessageTextContent(botMessage),
+              );
+              showToast(
+                `Tokens used: ${Math.round(
+                  userTokenCount + assistantTokenCount,
+                )}`,
+              );
             }
             ChatControllerPool.remove(session.id, botMessage.id);
           },
@@ -798,8 +811,10 @@ export const useChatStore = createPersistStore(
 
       updateStat(message: ChatMessage, session: ChatSession) {
         get().updateTargetSession(session, (session) => {
-          session.stat.charCount += message.content.length;
-          // TODO: should update chat count and word count
+          const text = getMessageTextContent(message);
+          session.stat.charCount += text.length;
+          session.stat.wordCount += text.split(/\s+/).filter(Boolean).length;
+          session.stat.tokenCount += estimateTokenLength(text);
         });
       },
       updateTargetSession(
